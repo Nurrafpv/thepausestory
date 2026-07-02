@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE PAUSE — a manga</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Zilla+Slab:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Gochi+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14110f;
+    --paper:#efe7d6;
+    --paper2:#e4d9c2;
+    --red:#c8352b;
+    --red2:#e0503f;
+    --gold:#e6a71e;
+    --blue:#2b4a63;
+    --grey:#9a9186;
+    --line:#14110f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(circle at 20% 10%, rgba(0,0,0,.05), transparent 40%),
+      var(--ink);
+    font-family:'Zilla Slab',Georgia,serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:24px 12px 80px;
+  }
+  .book{
+    width:100%;
+    max-width:720px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+
+  /* ---------- shared panel ---------- */
+  .panel{
+    position:relative;
+    background:var(--paper);
+    border:3px solid var(--line);
+    box-shadow:8px 8px 0 rgba(0,0,0,.55);
+    padding:26px 24px;
+    overflow:hidden;
+  }
+  .panel::before{
+    /* halftone texture */
+    content:"";
+    position:absolute;inset:0;
+    background-image:radial-gradient(var(--line) 0.6px, transparent 0.7px);
+    background-size:7px 7px;
+    opacity:.05;
+    pointer-events:none;
+  }
+  .tilt-l{transform:rotate(-.5deg);}
+  .tilt-r{transform:rotate(.5deg);}
+
+  /* speed lines wrap */
+  .speed{
+    background-image:repeating-linear-gradient(115deg, transparent 0 8px, rgba(20,17,15,.06) 8px 9px);
+  }
+
+  /* ---------- title ---------- */
+  .cover{
+    background:var(--ink);
+    border:3px solid var(--red);
+    box-shadow:8px 8px 0 var(--red);
+    color:var(--paper);
+    text-align:center;
+    padding:44px 24px 38px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cover::after{
+    content:"";position:absolute;inset:0;
+    background:
+      repeating-conic-gradient(from 0deg at 50% 120%, rgba(200,53,43,.16) 0deg 6deg, transparent 6deg 12deg);
+    pointer-events:none;
+  }
+  .kicker{
+    font-family:'Gochi Hand',cursive;
+    color:var(--gold);
+    letter-spacing:2px;
+    font-size:15px;
+    position:relative;z-index:2;
+  }
+  .cover h1{
+    font-family:'Bangers',cursive;
+    font-size:clamp(52px,14vw,104px);
+    line-height:.9;
+    letter-spacing:3px;
+    color:var(--paper);
+    text-shadow:4px 4px 0 var(--red),8px 8px 0 rgba(0,0,0,.4);
+    margin:8px 0 6px;
+    position:relative;z-index:2;
+  }
+  .cover .sub{
+    font-family:'Zilla Slab';font-style:italic;
+    font-size:16px;color:#cbb9a0;position:relative;z-index:2;
+    max-width:440px;margin:10px auto 0;
+  }
+  .byline{
+    margin-top:20px;font-family:'Gochi Hand',cursive;
+    font-size:14px;color:#8a7c66;position:relative;z-index:2;
+  }
+
+  /* ---------- chapter marker ---------- */
+  .chapter{
+    display:flex;align-items:center;gap:14px;
+    font-family:'Bangers',cursive;
+    letter-spacing:2px;
+    color:var(--paper);
+    font-size:26px;
+    padding:2px 0;
+  }
+  .chapter .num{
+    background:var(--red);
+    border:3px solid var(--paper);
+    box-shadow:4px 4px 0 rgba(0,0,0,.5);
+    width:52px;height:52px;flex:0 0 52px;
+    display:flex;align-items:center;justify-content:center;
+    transform:rotate(-4deg);
+    font-size:28px;
+  }
+  .chapter .rule{flex:1;height:3px;background:var(--paper);opacity:.5;}
+
+  /* ---------- narration box (top-left caption) ---------- */
+  .narr{
+    background:var(--paper2);
+    border:2px solid var(--line);
+    padding:12px 14px;
+    font-style:italic;
+    font-size:16.5px;
+    line-height:1.5;
+    box-shadow:3px 3px 0 rgba(0,0,0,.25);
+    margin-bottom:16px;
+  }
+  .narr.corner{
+    display:inline-block;
+    margin:0 0 14px;
+    max-width:90%;
+  }
+
+  /* ---------- speech bubbles ---------- */
+  .bubble{
+    position:relative;
+    background:#fff;
+    border:2.5px solid var(--line);
+    border-radius:26px;
+    padding:16px 20px;
+    font-size:18px;
+    line-height:1.5;
+    box-shadow:3px 4px 0 rgba(0,0,0,.28);
+    margin:6px 0 20px;
+    max-width:88%;
+  }
+  .bubble.right{margin-left:auto;}
+  .bubble .who{
+    font-family:'Bangers',cursive;letter-spacing:1px;
+    font-size:14px;color:var(--red);display:block;margin-bottom:3px;
+  }
+  .bubble::after{
+    content:"";position:absolute;bottom:-16px;left:34px;
+    width:0;height:0;border:9px solid transparent;
+    border-top-color:var(--line);
+  }
+  .bubble::before{
+    content:"";position:absolute;bottom:-11px;left:37px;z-index:2;
+    width:0;height:0;border:6px solid transparent;
+    border-top-color:#fff;
+  }
+  .bubble.right::after{left:auto;right:34px;}
+  .bubble.right::before{left:auto;right:37px;}
+
+  /* thought bubble */
+  .thought{
+    background:#fff;border:2.5px solid var(--line);
+    border-radius:40px;padding:18px 22px;
+    font-style:italic;font-size:17px;line-height:1.5;
+    position:relative;margin:6px auto 30px;max-width:78%;
+    box-shadow:3px 4px 0 rgba(0,0,0,.2);
+  }
+  .thought::after{
+    content:"";position:absolute;bottom:-14px;left:44px;
+    width:14px;height:14px;border-radius:50%;
+    background:#fff;border:2.5px solid var(--line);
+    box-shadow:-14px 8px 0 -4px #fff, -14px 8px 0 -6px var(--line);
+  }
+
+  /* ---------- the PAUSE splash ---------- */
+  .splash{
+    background:var(--ink);
+    border:3px solid var(--gold);
+    box-shadow:8px 8px 0 var(--gold);
+    color:var(--paper);
+    text-align:center;
+    padding:40px 20px;
+    position:relative;overflow:hidden;
+  }
+  .splash .burst{
+    font-family:'Bangers',cursive;
+    font-size:clamp(46px,13vw,88px);
+    color:var(--gold);
+    letter-spacing:2px;
+    text-shadow:4px 4px 0 var(--red),6px 6px 0 rgba(0,0,0,.5);
+    line-height:.95;position:relative;z-index:2;
+  }
+  .splash .small{
+    font-family:'Gochi Hand',cursive;font-size:16px;
+    color:#d8c6a8;margin-top:12px;position:relative;z-index:2;
+  }
+  .splash::before{
+    content:"";position:absolute;inset:-40%;
+    background:repeating-conic-gradient(from 0deg at 50% 50%,
+      rgba(230,167,30,.10) 0 5deg, transparent 5deg 10deg);
+    animation:spin 40s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion:reduce){.splash::before{animation:none;}}
+
+  /* ---------- YES / NO versus panel ---------- */
+  .versus{
+    display:grid;grid-template-columns:1fr 64px 1fr;
+    align-items:stretch;gap:0;
+    border:3px solid var(--line);
+    box-shadow:8px 8px 0 rgba(0,0,0,.55);
+    overflow:hidden;
+  }
+  .versus .side{
+    padding:24px 18px;position:relative;
+  }
+  .versus .yes{background:var(--blue);color:var(--paper);}
+  .versus .no{background:var(--red);color:var(--paper);}
+  .versus .side h3{
+    font-family:'Bangers',cursive;font-size:44px;letter-spacing:2px;
+    line-height:.9;margin-bottom:8px;
+  }
+  .versus .side p{font-size:15px;line-height:1.45;font-style:italic;}
+  .versus .vs{
+    background:var(--ink);color:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Bangers',cursive;font-size:30px;
+    text-shadow:2px 2px 0 var(--red);
+  }
+
+  /* ---------- grey zone reveal ---------- */
+  .grey{
+    background:linear-gradient(100deg,var(--blue),var(--grey) 50%,var(--red));
+    border:3px solid var(--line);
+    box-shadow:8px 8px 0 rgba(0,0,0,.55);
+    color:#fff;text-align:center;padding:32px 22px;
+  }
+  .grey h3{font-family:'Bangers',cursive;font-size:clamp(30px,7vw,48px);letter-spacing:2px;text-shadow:3px 3px 0 rgba(0,0,0,.5);}
+  .grey p{font-style:italic;font-size:16px;margin-top:8px;text-shadow:1px 1px 0 rgba(0,0,0,.4);}
+
+  /* ---------- the six steps demo ---------- */
+  .steps{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px;justify-content:center;}
+  .step{
+    width:44px;height:44px;border:2.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Bangers',cursive;font-size:20px;
+    background:var(--paper2);box-shadow:2px 2px 0 rgba(0,0,0,.3);
+  }
+  .step.done{background:var(--gold);}
+  .caption{font-family:'Gochi Hand',cursive;text-align:center;font-size:15px;color:#4a4038;margin-top:4px;}
+
+  /* ---------- SFX floating words ---------- */
+  .sfx{
+    font-family:'Bangers',cursive;
+    color:var(--red);
+    font-size:clamp(30px,8vw,58px);
+    letter-spacing:2px;
+    transform:rotate(-6deg);
+    text-shadow:3px 3px 0 var(--ink);
+    line-height:.9;
+    margin:2px 0;
+  }
+  .sfx.gold{color:var(--gold);}
+  .sfx.right{text-align:right;transform:rotate(5deg);}
+
+  p.body{font-size:16.5px;line-height:1.55;}
+  .em{color:var(--red);font-weight:700;font-style:normal;}
+  .emg{color:var(--blue);font-weight:700;font-style:normal;}
+
+  /* ---------- closing card ---------- */
+  .closer{
+    background:var(--ink);border:3px solid var(--paper);
+    box-shadow:8px 8px 0 var(--red);
+    color:var(--paper);text-align:center;padding:38px 24px;
+  }
+  .closer .big{
+    font-family:'Bangers',cursive;font-size:clamp(28px,7vw,46px);
+    letter-spacing:1px;line-height:1;margin-bottom:14px;
+  }
+  .closer .big span{color:var(--gold);}
+  .closer .sign{font-family:'Gochi Hand',cursive;font-size:17px;color:#cbb9a0;margin-top:18px;}
+
+  .toword{font-family:'Gochi Hand',cursive;color:var(--red);}
+</style>
+</head>
+<body>
+<main class="book">
+
+  <!-- COVER -->
+  <section class="cover">
+    <div class="kicker">◆ A ONE-SHOT ON DECISIONS ◆</div>
+    <h1>THE<br>PAUSE</h1>
+    <p class="sub">One breath, taken before the answer, can change everything that comes after.</p>
+    <div class="byline">✦ a five-year lesson, told in panels ✦</div>
+  </section>
+
+  <!-- OPENING NARRATION -->
+  <section class="panel tilt-l">
+    <div class="narr corner">Hi All — apologies for taking a while to put this together. I wanted to write it properly&hellip; because this one sits close to me.</div>
+    <p class="body">It looks simple on the surface. But the moment I really understood its power&mdash;<span class="em">it stayed.</span></p>
+    <div class="sfx">…tick… tick…</div>
+  </section>
+
+  <!-- CHAPTER 1 -->
+  <div class="chapter"><span class="num">1</span> THE SESSION <span class="rule"></span></div>
+
+  <section class="panel tilt-r speed">
+    <div class="narr corner">Rewind five years. Orientation week. A session led by <strong>Shikhar</strong>&hellip;</div>
+    <div class="bubble">
+      <span class="who">SHIKHAR</span>
+      When we're young, curious, and eager to prove ourselves&mdash;the second we know an answer, our instinct is to fire it back.
+    </div>
+    <div class="bubble right">
+      <span class="who">SHIKHAR</span>
+      But before you give that answer&hellip; can you pause? Is this really the <em>only</em> way to look at the question?
+    </div>
+  </section>
+
+  <!-- THE PAUSE SPLASH -->
+  <section class="splash">
+    <div class="burst">…PAUSE.</div>
+    <div class="small">before the answer leaves your mouth</div>
+  </section>
+
+  <section class="panel tilt-l">
+    <p class="body">Most of the time there <em>is</em> a straightforward answer. But sometimes that small pause cracks open a <span class="em">completely different possibility</span>&mdash;an approach nobody tested, a perspective that wasn't obvious at first.</p>
+    <div class="thought">It won't always hit the jackpot&hellip; but it gives me the chance to look past the most immediate answer.</div>
+  </section>
+
+  <!-- CHAPTER 2 -->
+  <div class="chapter"><span class="num">2</span> YES vs NO <span class="rule"></span></div>
+
+  <section class="panel tilt-r">
+    <div class="narr corner">Over time I saw the same principle everywhere&mdash;especially in how we handle work, opportunities, and responsibility.</div>
+    <p class="body">A new task lands. And most of us see it in pure <span class="emg">black</span> and <span class="em">white</span>&hellip;</p>
+  </section>
+
+  <section class="versus">
+    <div class="side yes">
+      <h3>YES!</h3>
+      <p>Said instantly&mdash;so the door never closes. Even without the bandwidth. Even out of fear of being passed over next time.</p>
+    </div>
+    <div class="vs">VS</div>
+    <div class="side no">
+      <h3>NO.</h3>
+      <p>Said instantly&mdash;to protect time, energy, work-life balance. The reason may be valid&hellip; but it lands as a full refusal.</p>
+    </div>
+  </section>
+
+  <section class="panel tilt-l">
+    <div class="sfx right gold">…but wait.</div>
+    <p class="body">Apply the pause again, and you realize&mdash;the best answer usually isn't at either extreme.</p>
+  </section>
+
+  <!-- GREY ZONE -->
+  <section class="grey">
+    <h3>IT LIVES IN THE GREY.</h3>
+    <p>somewhere between the two.</p>
+  </section>
+
+  <!-- CHAPTER 3 -->
+  <div class="chapter"><span class="num">3</span> THE TASK <span class="rule"></span></div>
+
+  <section class="panel tilt-r speed">
+    <div class="narr corner">Picture it. Someone asks: &ldquo;Can you finish this by tomorrow?&rdquo;</div>
+    <div class="bubble">
+      <span class="who">REFLEX A</span>
+      &ldquo;Yes, I'll do it!&rdquo; <em>(all ten steps&hellip; somehow.)</em>
+    </div>
+    <div class="bubble right">
+      <span class="who">REFLEX B</span>
+      &ldquo;No, I need more time.&rdquo;
+    </div>
+    <div class="sfx">…PAUSE…</div>
+  </section>
+
+  <section class="panel tilt-l">
+    <div class="narr corner">The task has ten steps. So instead of overpromising all ten&mdash;or refusing outright&hellip;</div>
+    <div class="steps">
+      <div class="step done">1</div><div class="step done">2</div><div class="step done">3</div>
+      <div class="step done">4</div><div class="step done">5</div><div class="step done">6</div>
+      <div class="step">7</div><div class="step">8</div><div class="step">9</div><div class="step">10</div>
+    </div>
+    <div class="caption">deliver 6&ndash;7 &bull; share the direction &bull; keep the door open</div>
+    <div class="bubble">
+      <span class="who">THE BETTER ANSWER</span>
+      &ldquo;By tomorrow I may not finish all of it&mdash;but I'll complete six or seven steps and share the initial direction.&rdquo;
+    </div>
+  </section>
+
+  <section class="splash">
+    <div class="burst">THAT CHANGES<br>EVERYTHING.</div>
+    <div class="small">not overpromising &bull; not denying &bull; still moving</div>
+  </section>
+
+  <section class="panel tilt-r">
+    <p class="body">You give <span class="em">context.</span> You show <span class="em">ownership.</span> You create <span class="em">progress.</span> I've seen it in my own work&mdash;and with my mentees. The difference is rarely yes or no. It's <span class="emg">whether we paused</span> and said what's realistically possible.</p>
+  </section>
+
+  <!-- CHAPTER 4 -->
+  <div class="chapter"><span class="num">4</span> THE CORE WORK <span class="rule"></span></div>
+
+  <section class="panel tilt-l">
+    <div class="narr corner">And it runs straight into the real work.</div>
+    <div class="thought">Have one Tier 1? &rarr; Can I still find a second solution?</div>
+    <div class="thought">No perfect Tier 1? &rarr; Can I build a stronger position&mdash;combinations, legal arguments, alternate interpretations?</div>
+    <div class="thought">One path dead? &rarr; Can I still find the smaller dots that strengthen the case?</div>
+  </section>
+
+  <section class="panel tilt-r">
+    <p class="body" style="text-align:center;font-size:19px;">It all comes back to one question:</p>
+    <div class="sfx gold" style="text-align:center;transform:rotate(-2deg);">Are we pausing…<br>or grabbing the closest answer?</div>
+  </section>
+
+  <!-- CLOSER -->
+  <section class="closer">
+    <div class="big">A direct <span>YES</span> or a direct <span>NO</span><br>may not always work.</div>
+    <p class="body" style="font-style:italic;color:#d8c6a8;max-width:520px;margin:0 auto;">The real value lives in the space between&mdash;and that space only opens when you bring the <strong style="color:#fff">full context</strong>. It keeps the open, willing part of &ldquo;yes,&rdquo; and the honest, no-overcommitting part of &ldquo;no.&rdquo;</p>
+    <div class="big" style="margin-top:22px;">One small <span>pause</span>&hellip;<br>before you answer.</div>
+    <div class="sign">— Best Regards, Sahaj</div>
+  </section>
+
+</main>
+</body>
+</html>
